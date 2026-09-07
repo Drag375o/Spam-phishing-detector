@@ -184,6 +184,12 @@ The LogReg `C` sweep (0.9918 → 0.9937 → 0.9943) shows regularisation strengt
 explains part of the SVM advantage but not all of it — LogReg never caught up
 even at C=20 and 31 seconds.
 
+Why SGDClassifier ?
+> `SGDClassifier` is not fully deterministic across fits even with a fixed
+> `random_state`, so the shipped model's metrics (Evaluation section below)
+> differ marginally from this comparison run.
+
+
 ## Evaluation
 
 Shipped model, random 80/20 stratified split, seed 42:
@@ -390,8 +396,10 @@ git clone https://github.com/Drag375o/Spam-phishing-detector.git
 cd Spam-phishing-detector
 
 python -m venv .venv
-.venv\Scripts\Activate.ps1        # Windows
-# source .venv/bin/activate       # macOS / Linux
+# Windows (PowerShell)
+.venv\Scripts\Activate.ps1
+# macOS / Linux
+source .venv/bin/activate
 
 pip install -r requirements.txt
 streamlit run app/app.py
@@ -402,3 +410,9 @@ The trained model is committed, so the app runs without retraining.
 To reproduce training, download the dataset into `data/raw/` and run
 `notebooks/01_exploration.ipynb`.
 
+
+
+---
+
+Built by [Drag375o](https://github.com/Drag375o). Dataset from
+[Kaggle](https://www.kaggle.com/datasets/naserabdullahalam/phishing-email-dataset).

@@ -126,7 +126,7 @@ Trained on {cfg['n_train']:,} emails, tested on {cfg['n_test']:,}.
 Accuracy {cfg['random_split_metrics']['accuracy']:.4f} · Recall {cfg['random_split_metrics']['recall']:.4f} · F1 {cfg['random_split_metrics']['f1']:.4f}
 
 **Leave-one-corpus-out**
-56%–99% accuracy, mean ≈88%. Held-out-source performance is the honest estimate;
+56%–99% accuracy, mean 86.5%%. Held-out-source performance is the honest estimate;
 the random-split numbers are optimistic because training and test emails come
 from the same six corpora.
 """)

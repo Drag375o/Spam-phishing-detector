@@ -1,0 +1,10 @@
+case,truth,predicted,conf,risk,n_flags,correct
+work_reminder,ham,ham,24.6,LOW,0,True
+delivery,ham,spam,76.7,MEDIUM,1,False
+real_bank,ham,spam,99.0,HIGH,1,False
+github,ham,ham,24.7,LOW,1,True
+promo,spam,spam,67.5,MEDIUM,4,True
+crypto,spam,spam,84.2,MEDIUM,0,True
+credential,spam,spam,99.0,HIGH,3,True
+invoice_fraud,spam,spam,99.0,HIGH,1,True
+ceo_fraud,spam,spam,89.7,MEDIUM,2,True

@@ -62,7 +62,6 @@ div[data-testid="stStatusWidget"] {{
   visibility:hidden !important; height:0% !important; position:fixed !important;
 }}
 
-span[data-testid="stHeaderActionElements"] {{ display:none !important; }}
 
 /* ---- background ---- */
 .stApp {{
@@ -82,7 +81,10 @@ span[data-testid="stHeaderActionElements"] {{ display:none !important; }}
 }}
 
 /* ---- type ---- */
-.stApp, .stApp p, .stApp div, .stApp span, .stApp label {{ font-family:var(--serif); }}
+/* Do not target every `span`: Streamlit uses spans for Material icons, and
+   forcing the serif font makes icon names such as `keyboard_arrow_right`
+   appear as text. */
+.stApp, .stApp p, .stApp div, .stApp label {{ font-family:var(--serif); }}
 
 /* masthead, left aligned */
 .brand {{
@@ -180,19 +182,29 @@ div[data-testid="stVerticalBlockBorderWrapper"] th {{
 }}
 
 /* ---- controls ---- */
+/* Streamlit 1.63 puts the textarea surface on this wrapper, not on the
+   textarea itself. Give it the same muted glass surface as the expander. */
+div[data-testid="stTextAreaRootElement"],
+.stSelectbox div:has(> input),
+.stSelectbox div[data-baseweb="select"] > div {{
+  background:rgba(255,255,255,.08) !important;
+  backdrop-filter:blur(12px) saturate(1.3) !important;
+  -webkit-backdrop-filter:blur(12px) saturate(1.3) !important;
+  border:1px solid rgba(255,255,255,.22) !important;
+  border-radius:10px !important;
+}}
 .stTextArea textarea {{
   font-family:var(--mono) !important; font-size:.84rem !important;
   line-height:1.65 !important;
-  background:rgba(0,0,0,.28) !important;
-  border:1px solid rgba(255,255,255,.22) !important;
+  background:transparent !important;
+  border:none !important;
   border-radius:10px !important; color:#fff !important;
 }}
 .stTextArea textarea::placeholder {{ color:rgba(255,255,255,.45) !important; }}
 
-.stSelectbox div[data-baseweb="select"] > div {{
-  background:rgba(0,0,0,.28) !important;
-  border:1px solid rgba(255,255,255,.22) !important;
-  border-radius:10px !important; color:#fff !important;
+.stSelectbox input {{
+  background:transparent !important;
+  color:#fff !important;
   font-family:var(--mono) !important; font-size:.81rem !important;
 }}
 
@@ -211,13 +223,28 @@ div[data-testid="stVerticalBlockBorderWrapper"] th {{
 }}
 .stButton > button:focus-visible {{ outline:2px solid #E0A93F; outline-offset:3px; }}
 
-.stExpander {{
+/* Keep the expander's header unchanged when opened, hovered, or pressed.
+   Streamlit applies a light `bgMix` color to an open header by default. */
+div[data-testid="stExpander"] details {{
   background:rgba(255,255,255,.08) !important;
   border:1px solid rgba(255,255,255,.18) !important;
   border-radius:12px !important;
 }}
-.stExpander p, .stExpander summary, .stExpander span,
-.stExpander td, .stExpander th {{ color:rgba(255,255,255,.85) !important; }}
+div[data-testid="stExpander"] summary,
+div[data-testid="stExpander"] details[open] > summary,
+div[data-testid="stExpander"] summary:hover,
+div[data-testid="stExpander"] summary:focus-visible,
+div[data-testid="stExpander"] summary:active {{
+  background:transparent !important;
+  box-shadow:none !important;
+}}
+div[data-testid="stExpander"] [data-testid="stExpanderDetails"] {{
+  background:transparent !important;
+}}
+div[data-testid="stExpander"] p,
+div[data-testid="stExpander"] summary,
+div[data-testid="stExpander"] td,
+div[data-testid="stExpander"] th {{ color:rgba(255,255,255,.85) !important; }}
 
 /* ---- mobile: recompose ---- */
 @media (max-width:760px) {{

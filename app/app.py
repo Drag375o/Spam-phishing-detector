@@ -11,6 +11,9 @@ gradient rather than crashing.
 """
 import sys
 from pathlib import Path
+from html import escape
+import re
+from textwrap import dedent
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -28,7 +31,7 @@ st.session_state.setdefault("page", "home")
 st.session_state.setdefault("result", None)
 
 
-@st.cache_resource
+@st.cache_resource(show_spinner=False)
 def artifacts():
     return load_artifacts()
 
@@ -232,13 +235,13 @@ would be dishonest, so the interface labels them apart.
     "numbers": ("The numbers", """
 | | value |
 |---|---:|
-| emails after cleaning | 82,072 |
-| source corpora | 6 |
-| training set | 65,657 |
-| features | 453,409 |
-| accuracy, random split | 0.9939 |
-| precision | 0.9929 |
-| recall | 0.9954 |
+| Emails after cleaning | 82,072 |
+| Eource corpora | 6 |
+| Training set | 65,657 |
+| Features | 453,409 |
+| Accuracy, random split | 0.9939 |
+| Precision | 0.9929 |
+| Recall | 0.9954 |
 | F1 | 0.9942 |
 | ROC-AUC | 0.9994 |
 
@@ -276,6 +279,70 @@ Not a security product.
 }
 
 
+def _card_inline(text):
+    """Render the small Markdown subset used by the static information pages."""
+    escaped = escape(text)
+    escaped = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", escaped)
+    return re.sub(r"`(.+?)`", r"<code>\1</code>", escaped)
+
+
+def info_card_html(body):
+    """Create a self-contained frosted card without Streamlit container CSS."""
+    lines = dedent(body).strip().splitlines()
+    blocks = []
+    index = 0
+
+    while index < len(lines):
+        if not lines[index].strip():
+            index += 1
+            continue
+
+        if lines[index].lstrip().startswith("|"):
+            header = [cell.strip() for cell in lines[index].strip().strip("|").split("|")]
+            index += 2  # Skip the Markdown table separator.
+            rows = []
+            while index < len(lines) and lines[index].lstrip().startswith("|"):
+                rows.append([cell.strip() for cell in lines[index].strip().strip("|").split("|")])
+                index += 1
+
+            head = "".join(
+                f'<th style="padding:.55rem .7rem;text-align:left;color:#F7FAFF;'
+                f'font-weight:600;border-bottom:1px solid rgba(255,255,255,.22)">'
+                f'{_card_inline(cell)}</th>' for cell in header
+            )
+            body_rows = "".join(
+                '<tr>' + "".join(
+                    f'<td style="padding:.5rem .7rem;color:#F2F6FC;'
+                    f'border-bottom:1px solid rgba(255,255,255,.12)">'
+                    f'{_card_inline(cell)}</td>' for cell in row
+                ) + '</tr>' for row in rows
+            )
+            blocks.append(
+                '<div style="overflow-x:auto;margin:0 0 1.1rem">'
+                '<table style="width:100%;border-collapse:collapse;font-size:.94rem">'
+                f'<thead><tr>{head}</tr></thead><tbody>{body_rows}</tbody></table></div>'
+            )
+            continue
+
+        paragraph = []
+        while index < len(lines) and lines[index].strip() and not lines[index].lstrip().startswith("|"):
+            paragraph.append(lines[index].strip())
+            index += 1
+        blocks.append(
+            '<p style="margin:0 0 1.1rem;color:#F2F6FC;font-size:1rem;'
+            f'line-height:1.68">{_card_inline(" ".join(paragraph))}</p>'
+        )
+
+    return (
+        '<section aria-label="Information" style="box-sizing:border-box;width:100%;'
+        'padding:1.6rem;border:1px solid rgba(225,235,248,.38);border-radius:16px;'
+        'background:rgba(13,22,37,.76);backdrop-filter:blur(24px) saturate(1.35);'
+        '-webkit-backdrop-filter:blur(24px) saturate(1.35);box-shadow:0 18px 50px '
+        '-20px rgba(0,0,0,.55);font-family:Georgia,serif">'
+        + "".join(blocks) + '</section>'
+    )
+
+
 def subpage(key):
     title, body = TEXTS[key]
     st.markdown(f'<div class="brand" style="margin-bottom:1.4rem">'
@@ -287,8 +354,7 @@ def subpage(key):
     st.write("")
     _, mid, _ = st.columns([0.4, 3, 0.4])
     with mid:
-        with st.container(border=True):
-            st.markdown(body)
+        st.html(info_card_html(body))
 
 
 # ----------------------------------------------------------------- route
